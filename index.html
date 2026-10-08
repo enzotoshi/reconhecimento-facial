@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111c2c" />
+    <meta name="description" content="Interface de acesso facial com captura local de vídeo. Verificação de identidade ainda não configurada." />
+    <title>Acesso facial</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./src/app.js"></script>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="Acesso facial, início">
+          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M11 4H7a3 3 0 0 0-3 3v4m17-7h4a3 3 0 0 1 3 3v4M4 21v4a3 3 0 0 0 3 3h4m10 0h4a3 3 0 0 0 3-3v-4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M12 13v2m8-2v2m-8 5c2 2 6 2 8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>Acesso<span class="brand-light"> facial</span></span>
+        </a>
+        <span class="environment">Ambiente de demonstração</span>
+      </header>
+
+      <main>
+        <div class="intro">
+          <p class="eyebrow">Sua câmera, no seu dispositivo</p>
+          <h1>Posicione seu rosto.<br /><span>Comece pela câmera.</span></h1>
+          <p>Ative a câmera para visualizar os contornos do rosto em tempo real.</p>
+        </div>
+
+        <div class="workspace">
+          <section class="capture-card" aria-label="Captura da câmera">
+            <div class="viewer" id="viewer">
+              <video id="video" autoplay muted playsinline aria-label="Imagem ao vivo da câmera"></video>
+              <canvas id="overlay" aria-hidden="true"></canvas>
+              <div class="position-guide" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+              <div class="placeholder" id="placeholder" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none"><rect x="6" y="13" width="26" height="23" rx="5" stroke="currentColor" stroke-width="1.8"/><path d="m32 20 10-6v21l-10-6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                <span>Sua câmera está desligada</span>
+              </div>
+              <div class="viewer-top"><span class="preview-label">VISUALIZAÇÃO</span><span id="live-label" class="live-label" hidden>Ao vivo</span></div>
+              <p class="guide-caption" id="guide-caption">Centralize seu rosto nesta área</p>
+            </div>
+            <div class="capture-controls">
+              <div class="status" role="status" aria-live="polite" aria-atomic="true">
+                <span class="status-dot" id="status-dot"></span>
+                <div><strong id="status-title">Câmera desligada</strong><p id="status-detail">Clique em iniciar para permitir o acesso à câmera.</p></div>
+              </div>
+              <label class="device-field" id="device-field" hidden>Câmera<select id="device-select"></select></label>
+              <div class="buttons">
+                <button class="button primary" id="start-button" type="button"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="5" width="11" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="m13 8 5-3v10l-5-3" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Iniciar câmera</button>
+                <button class="button secondary" id="stop-button" type="button" disabled><span class="stop-icon" aria-hidden="true"></span>Parar câmera</button>
+              </div>
+            </div>
+          </section>
+
+          <aside class="side-panel" aria-label="Detecção facial">
+            <div class="panel-heading"><span class="section-number">01</span><h2>Detecção facial</h2></div>
+            <div class="verification-state" role="status" aria-live="polite" aria-atomic="true">
+              <span class="tag" id="analysis-tag">Aguardando câmera</span>
+              <h3 id="analysis-title">Ative a câmera para detectar o rosto</h3>
+              <p id="analysis-detail">Os contornos faciais serão exibidos sobre a imagem. A confirmação de identidade ainda não está configurada.</p>
+            </div>
+            <dl class="stages">
+              <div><dt>Captura de vídeo</dt><dd id="capture-result">Desligada</dd></div>
+              <div><dt>Detecção de rosto</dt><dd id="detection-result">Parada</dd></div>
+              <div><dt>Confirmação de identidade</dt><dd>Não configurada</dd></div>
+            </dl>
+            <div class="position-tips"><h3>Para uma boa captura</h3><p>Fique de frente para a câmera, mantenha o rosto visível e procure um local bem iluminado.</p></div>
+            <p class="identity-note">Detectar um rosto não confirma a identidade de uma pessoa. Esta demonstração não libera acesso.</p>
+          </aside>
+        </div>
+        <footer class="footer"><p><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m10 2 6 2v5c0 4-6 7-6 7S4 13 4 9V4l6-2Z" stroke="currentColor" stroke-width="1.5"/><path d="m7 9 2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>O vídeo fica no seu dispositivo. Nenhuma imagem é gravada, enviada ou armazenada.</p><p>A câmera requer <strong>localhost</strong> ou <strong>HTTPS</strong>.</p></footer>
+      </main>
+    </div>
+  </body>
+</html>

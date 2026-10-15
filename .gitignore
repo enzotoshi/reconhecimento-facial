@@ -1,3 +1,4 @@
 dist/
 node_modules/
 public/mediapipe/
+public/recognition/

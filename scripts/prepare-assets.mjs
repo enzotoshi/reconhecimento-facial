@@ -23,3 +23,15 @@ if (!bytes || !valid(bytes)) {
 }
 console.log(`Modelo local validado: ${bytes.length} bytes.`);
 console.log('Modelo e WASM preparados em public/mediapipe/.');
+
+// Redes versionadas junto com o pacote npm: detecção, alinhamento e embedding 128D.
+const recognition = new URL('public/recognition/', root);
+await mkdir(recognition, { recursive: true });
+for (const network of ['ssd_mobilenetv1', 'face_landmark_68', 'face_recognition']) {
+  for (const suffix of ['-weights_manifest.json', '.bin']) {
+    const file = `${network}_model${suffix}`;
+    await cp(new URL(`node_modules/@vladmandic/face-api/model/${file}`, root), new URL(file, recognition));
+  }
+}
+await cp(new URL('node_modules/@vladmandic/face-api/LICENSE', root), new URL('LICENSE', recognition));
+console.log('Modelos de reconhecimento preparados em public/recognition/.');

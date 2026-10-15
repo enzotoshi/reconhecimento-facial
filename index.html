@@ -27,6 +27,10 @@
           <p>Ative a câmera para visualizar os contornos do rosto em tempo real.</p>
         </div>
 
+        <div class="mode-switch" role="group" aria-label="Modo de uso">
+          <button type="button" id="mode-detect" aria-pressed="true" aria-controls="detection-panel">Detecção ao vivo</button>
+          <button type="button" id="mode-enroll" aria-pressed="false" aria-controls="enrollment-panel">Cadastrar rosto</button>
+        </div>
         <div class="workspace">
           <section class="capture-card" aria-label="Captura da câmera">
             <div class="viewer" id="viewer">
@@ -53,23 +57,53 @@
             </div>
           </section>
 
-          <aside class="side-panel" aria-label="Detecção facial">
+          <aside class="side-panel" id="detection-panel" aria-label="Detecção facial">
             <div class="panel-heading"><span class="section-number">01</span><h2>Detecção facial</h2></div>
             <div class="verification-state" role="status" aria-live="polite" aria-atomic="true">
               <span class="tag" id="analysis-tag">Aguardando câmera</span>
               <h3 id="analysis-title">Ative a câmera para detectar o rosto</h3>
-              <p id="analysis-detail">Os contornos faciais serão exibidos sobre a imagem. A confirmação de identidade ainda não está configurada.</p>
+              <p id="analysis-detail">Os contornos faciais serão exibidos sobre a imagem e comparados com os cadastros locais.</p>
             </div>
             <dl class="stages">
               <div><dt>Captura de vídeo</dt><dd id="capture-result">Desligada</dd></div>
               <div><dt>Detecção de rosto</dt><dd id="detection-result">Parada</dd></div>
-              <div><dt>Confirmação de identidade</dt><dd>Não configurada</dd></div>
+              <div><dt>Reconhecimento local</dt><dd id="identity-result">Aguardando câmera</dd></div>
             </dl>
+            <section class="recognition-panel" id="recognition-panel" data-state="idle" aria-label="Reconhecimento facial" role="status" aria-live="polite" aria-atomic="true">
+              <p class="recognition-label">Comparação com seus cadastros</p>
+              <h3 id="recognition-title">Aguardando câmera</h3>
+              <strong id="recognized-name" hidden></strong>
+              <p id="recognition-detail">Inicie a câmera para comparar com os rostos cadastrados.</p>
+            </section>
+            <p class="recognition-references" id="recognition-references"></p>
             <div class="position-tips"><h3>Para uma boa captura</h3><p>Fique de frente para a câmera, mantenha o rosto visível e procure um local bem iluminado.</p></div>
-            <p class="identity-note">Detectar um rosto não confirma a identidade de uma pessoa. Esta demonstração não libera acesso.</p>
+            <p class="identity-note">Reconhecimento experimental por semelhança facial. Fotos e vídeos também podem corresponder: não há prova de vivacidade nem liberação de acesso.</p>
+          </aside>
+          <aside class="side-panel enrollment-panel" id="enrollment-panel" aria-label="Cadastro de rostos" hidden>
+            <div class="panel-heading"><span class="section-number">02</span><h2>Cadastrar rosto</h2></div>
+            <p class="enrollment-intro">Capture uma foto e associe um nome. Para melhorar um cadastro existente, capture outra foto e use Adicionar foto na lista.</p>
+            <p class="enrollment-hint" id="enrollment-hint" role="status" aria-live="polite">Inicie a câmera para capturar o rosto.</p>
+            <form id="enrollment-form">
+              <label class="name-field" for="face-name">Nome da pessoa</label>
+              <input id="face-name" name="name" type="text" placeholder="Ex.: Ana Silva" minlength="2" maxlength="80" autocomplete="off" required />
+              <button class="button secondary capture-face" id="capture-face" type="button" disabled>Capturar rosto</button>
+              <div class="photo-preview" id="photo-preview" hidden>
+                <img id="face-preview" alt="Prévia da foto do rosto que será cadastrada" />
+                <button type="button" id="clear-photo" class="delete-face">Descartar foto</button>
+              </div>
+              <p class="storage-note">Ao salvar, o nome e a foto ficam neste navegador. Você pode excluí-los abaixo. Use o mesmo endereço para acessar seus cadastros.</p>
+              <button class="button primary save-face" id="save-face" type="submit" disabled>Salvar cadastro local</button>
+              <p id="enrollment-message" class="enrollment-message" role="status" aria-live="polite"></p>
+            </form>
+            <div class="registered-heading"><h3>Rostos cadastrados</h3><span id="registered-count">0</span></div>
+            <p class="registered-empty" id="registered-empty">Nenhum rosto cadastrado neste navegador.</p>
+            <p class="storage-note">Use de 3 a 5 fotos nítidas por pessoa: de frente e com pequenas variações de posição e iluminação.</p>
+            <ul id="registered-list" class="registered-list" aria-label="Cadastros locais"></ul>
+            <p id="storage-message" class="storage-message" role="status" aria-live="polite"></p>
+            <p class="identity-note">Os rostos salvos serão comparados na aba Detecção ao vivo. A comparação é experimental e não libera acesso.</p>
           </aside>
         </div>
-        <footer class="footer"><p><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m10 2 6 2v5c0 4-6 7-6 7S4 13 4 9V4l6-2Z" stroke="currentColor" stroke-width="1.5"/><path d="m7 9 2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>O vídeo fica no seu dispositivo. Nenhuma imagem é gravada, enviada ou armazenada.</p><p>A câmera requer <strong>localhost</strong> ou <strong>HTTPS</strong>.</p></footer>
+        <footer class="footer"><p><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m10 2 6 2v5c0 4-6 7-6 7S4 13 4 9V4l6-2Z" stroke="currentColor" stroke-width="1.5"/><path d="m7 9 2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>O vídeo fica no dispositivo. Somente fotos salvas por você são armazenadas neste navegador.</p><p>A câmera requer <strong>localhost</strong> ou <strong>HTTPS</strong>.</p></footer>
       </main>
     </div>
   </body>

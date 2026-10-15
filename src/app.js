@@ -2,6 +2,8 @@ import { CameraCapture } from './camera.js';
 import { FrameAnalysis } from './analysis.js';
 import { FaceLandmarkerAdapter } from './integration.js';
 import { detectionState } from './overlay.js';
+import { Enrollment } from './enrollment.js';
+import { LiveRecognition } from './recognition.js';
 
 const $ = (id) => document.getElementById(id);
 const video = $('video');
@@ -13,16 +15,25 @@ let panelState = '';
 let operation = 0;
 let state = 'off';
 let removeEndedListener = () => {};
+function currentSession() {
+  if (state !== 'active' || !detector) return null;
+  const current = operation;
+  const candidate = detector;
+  return { video, detector: candidate, isCurrent: () => operation === current && state === 'active' && detector === candidate };
+}
+const recognition = new LiveRecognition(currentSession);
+const enrollment = new Enrollment(currentSession, () => recognition.refresh());
 
 function setAnalysis(next, error) {
   if (panelState === next) return; // Evita anúncios repetidos a cada quadro.
   panelState = next;
+  enrollment.setCaptureState(next);
   const messages = {
-    idle: ['Aguardando câmera', 'Ative a câmera para detectar o rosto', 'Os contornos faciais serão exibidos sobre a imagem. A confirmação de identidade ainda não está configurada.', 'Parada'],
+    idle: ['Aguardando câmera', 'Ative a câmera para detectar o rosto', 'Os contornos faciais serão exibidos sobre a imagem e comparados com os cadastros locais.', 'Parada'],
     loading: ['Carregando modelo', 'Preparando a detecção facial', 'A câmera já está ativa. Aguarde o carregamento do modelo local do MediaPipe.', 'Carregando'],
     ready: ['Analisando', 'Aguardando o primeiro resultado', 'Mantenha o rosto visível e centralizado na moldura.', 'Em execução'],
     absent: ['Nenhum rosto', 'Nenhum rosto detectado', 'Fique de frente para a câmera e procure uma boa iluminação.', 'Nenhum rosto'],
-    single: ['Rosto detectado', 'Contornos faciais detectados', 'Os contornos acompanham o rosto em tempo real. Sua identidade ainda não foi verificada.', 'Um rosto'],
+    single: ['Rosto detectado', 'Contornos faciais detectados', 'A comparação com as fotos cadastradas aparece abaixo.', 'Um rosto'],
     multiple: ['Ajuste a captura', 'Mais de um rosto detectado', 'Mantenha apenas uma pessoa visível na câmera.', 'Múltiplos rostos'],
     error: ['Erro na detecção', 'A análise facial está indisponível', 'A câmera permanece ativa. Pare e inicie novamente para tentar. ' + (error?.message || ''), 'Indisponível'],
   };
@@ -50,6 +61,7 @@ function setState(next, title, detail) {
 
 function release() {
   ++operation;
+  recognition.stop();
   analysis?.stop();
   analysis = null;
   detector?.close();
@@ -136,10 +148,11 @@ async function start(deviceId) {
       if (current !== operation) { candidate.close(); return; }
       analysis = new FrameAnalysis(candidate, {
         maxFps: 15,
-        onResult: (result) => setAnalysis(detectionState(result)),
-        onError: (error) => { candidate.close(); setAnalysis('error', error); },
+        onResult: (result) => { setAnalysis(detectionState(result)); recognition.observe(result); },
+        onError: (error) => { candidate.close(); recognition.stop('error'); setAnalysis('error', error); },
       });
       setAnalysis('ready');
+      recognition.start();
       analysis.start(video, canvas);
     } catch (error) {
       if (current !== operation) return;
@@ -161,9 +174,13 @@ navigator.mediaDevices?.addEventListener?.('devicechange', refreshDevices);
 // Se a tela virar um componente, use dispose() na desmontagem.
 function dispose() {
   stop();
+  enrollment.dispose();
   navigator.mediaDevices?.removeEventListener?.('devicechange', refreshDevices);
 }
 window.addEventListener('pagehide', dispose);
 // Restaura apenas os listeners ao voltar pelo histórico; nunca liga a câmera sozinha.
-window.addEventListener('pageshow', () => navigator.mediaDevices?.addEventListener?.('devicechange', refreshDevices));
+window.addEventListener('pageshow', () => {
+  navigator.mediaDevices?.addEventListener?.('devicechange', refreshDevices);
+  enrollment.resume();
+});
 setAnalysis('idle');
